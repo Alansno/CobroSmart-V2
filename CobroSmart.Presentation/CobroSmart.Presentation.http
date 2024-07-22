@@ -1,0 +1,6 @@
+@CobroSmart.Presentation_HostAddress = http://localhost:5097
+
+GET {{CobroSmart.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
