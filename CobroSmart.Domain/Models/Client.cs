@@ -16,6 +16,7 @@ namespace CobroSmart.Domain.Models
         [Column(TypeName = "nvarchar(20)")]
         public string PhoneNumberClient { get; set; }
         public string EmailClient { get; set; }
+        public string TimeZone { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; } = null;
         public int? EmployeeId { get; set; }

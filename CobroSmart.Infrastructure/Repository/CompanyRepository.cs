@@ -1,6 +1,7 @@
 ﻿using CobroSmart.Domain.Exceptions;
 using CobroSmart.Domain.Models;
 using CobroSmart.Infrastructure.Context;
+using CobroSmart.Infrastructure.Custom.Results;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -17,37 +18,37 @@ namespace CobroSmart.Infrastructure.Repository
         {
             _context = context;
         }
-        public Task<bool> Delete(int Id)
+        public Task<Result<bool>> Delete(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Company> FindById(int Id)
+        public Task<Result<Company>> FindById(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IQueryable<Company>> GetAll()
+        public IQueryable<Company> GetAll()
         {
-            throw new NotImplementedException();
+            return _context.Companies;
         }
 
-        public async Task<Company> Save(Company model)
+        public async Task<Result<Company>> Save(Company model)
         {
             if (model == null)
-                throw new NotFoundException(nameof(model));
+                return Result<Company>.Failure("Model was found");
 
-            var company = await _context.Companies.AddAsync(model);
+            await _context.Companies.AddAsync(model);
             await _context.SaveChangesAsync();
-            return model;
+            return Result<Company>.Success(model);
         }
 
-        public Task<bool> SoftDelete(int Id)
+        public Task<Result<bool>> SoftDelete(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Update(Company model)
+        public Task<Result<bool>> Update(Company model)
         {
             throw new NotImplementedException();
         }

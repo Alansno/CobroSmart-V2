@@ -2,7 +2,10 @@
 using CobroSmart.Domain.Dtos;
 using CobroSmart.Domain.Mappers;
 using CobroSmart.Domain.Models;
+using CobroSmart.Domain.QueryBase;
+using CobroSmart.Infrastructure.Custom.Results;
 using CobroSmart.Infrastructure.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +18,10 @@ namespace CobroSmart.Application.Services
     {
         private readonly IRepository<Role> _repository;
         private readonly RoleMapper _mapper;
-        public RoleService(IRepository<Role> repository)
+        public RoleService(IRepository<Role> repository, RoleMapper mapper)
         {
             _repository = repository;
-            _mapper = new RoleMapper();
+            _mapper = mapper;
         }
 
         public async Task<Role> Create(RoleDto roleDto)
@@ -28,10 +31,12 @@ namespace CobroSmart.Application.Services
             return role;
         }
 
-        public async Task<int> FindById(int id)
+        public async Task<Result<FindRoleWithIdAndName>> FindById(int id)
         {
-            var byId = await _repository.GetAll();
-            return byId.Where(r => r.Id == id).Select(r => r.Id).FirstOrDefault();
+            var result = await _repository.GetAll().Where(r => r.Id == id).
+                Select(r => new FindRoleWithIdAndName { Id = r.Id, NameRole = r.NameRole }).FirstOrDefaultAsync();
+            return Result<FindRoleWithIdAndName>.Success(result)
+                .Ensure(role => role != null, "Role not found");
         }
     }
 }

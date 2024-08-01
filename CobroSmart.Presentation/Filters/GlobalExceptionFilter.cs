@@ -17,7 +17,7 @@ namespace CobroSmart.Presentation.Filters
         public void OnException(ExceptionContext context)
         {
             var statusCode = HttpStatusCode.InternalServerError;
-            var message = "Se ha producido un error inesperado.";
+            var message = "An unexpected error has occurred.";
 
             switch (context.Exception)
             {
@@ -41,10 +41,11 @@ namespace CobroSmart.Presentation.Filters
             context.Result = new ObjectResult(new
             {
                 message = message,
-                statusCode = (int)statusCode
+                statusCode = (int)statusCode,
+                success = false,
             })
             {
-                StatusCode = (int)statusCode
+                StatusCode = (int)statusCode,
             };
 
             context.ExceptionHandled = true;

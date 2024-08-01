@@ -25,11 +25,14 @@ namespace CobroSmart.Presentation.Controllers
         public async Task<IActionResult> CreateCompanyUser([FromBody] UserDto userDto)
         {
             var save = await _companyService.Create(userDto);
-            return Ok(_responseBuild.SetSuccess(true)
+            if (save.IsSuccess)
+                return Ok(_responseBuild.SetSuccess(true)
                        .SetStatus(System.Net.HttpStatusCode.Created)
                        .SetMessage("User with Company role was created successfully")
-                       .SetData(save)
+                       .SetData(save.Value)
                        .Build());
+
+            return BadRequest(save.Error);
         }
     }
 }

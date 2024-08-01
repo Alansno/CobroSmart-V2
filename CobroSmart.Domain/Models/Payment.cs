@@ -10,11 +10,13 @@ namespace CobroSmart.Domain.Models
     public class Payment : SoftDeleteBase
     {
         public int Id { get; set; }
+        [Column(TypeName = "date")]
         public DateTime DatePayment { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal TotalPayment { get; set; }
         public bool IsPaid { get; set; }
         public string Status { get; set; }
+        public DateTime? HisPayment { get; set; }
         public int? DiscountId { get; set; }
         public Discount? Discount { get; set; } = null;
         public int? InterestId { get; set; }

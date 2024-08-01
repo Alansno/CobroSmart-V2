@@ -1,6 +1,7 @@
 ﻿using CobroSmart.Domain.Exceptions;
 using CobroSmart.Domain.Models;
 using CobroSmart.Infrastructure.Context;
+using CobroSmart.Infrastructure.Custom.Results;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -17,44 +18,47 @@ namespace CobroSmart.Infrastructure.Repository
         {
             _context = context;
         }
-        public async Task<bool> Delete(int Id)
+        public async Task<Result<bool>> Delete(int Id)
         {
-            var role = await _context.Roles.FindAsync(Id) ?? throw new NotFoundException("Role not was found");
+            var role = await _context.Roles.FindAsync(Id);
+            if (role == null)
+                return Result<bool>.Failure("Role not was found");
 
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
-            return true;
+            return Result<bool>.Success(true);
         }
 
-        public async Task<Role> FindById(int Id)
+        public async Task<Result<Role>> FindById(int Id)
         {
-            var role = await _context.Roles.FindAsync(Id) ?? throw new NotFoundException("Role not was found");
+            var role = await _context.Roles.FindAsync(Id);
+            if (role == null)
+                return Result<Role>.Failure("Role not was found");
 
-            return role;
+            return Result<Role>.Success(role);
         }
 
-        public async Task<IQueryable<Role>> GetAll()
+        public IQueryable<Role> GetAll()
         {
-            IQueryable<Role> roles = _context.Roles;
-            return roles;
+            return _context.Roles;
         }
 
-        public async Task<Role> Save(Role model)
+        public async Task<Result<Role>> Save(Role model)
         {
             if (model == null)
-                throw new NotFoundException(nameof(model));
+                return Result<Role>.Failure("Model is empty");
 
             var role = await _context.Roles.AddAsync(model);
             await _context.SaveChangesAsync();
-            return model;
+            return Result<Role>.Success(model);
         }
 
-        public Task<bool> SoftDelete(int Id)
+        public Task<Result<bool>> SoftDelete(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> Update(Role model)
+        public Task<Result<bool>> Update(Role model)
         {
             throw new NotImplementedException();
         }

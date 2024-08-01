@@ -1,6 +1,7 @@
 ﻿using CobroSmart.Domain.Exceptions;
 using CobroSmart.Domain.Models;
 using CobroSmart.Infrastructure.Context;
+using CobroSmart.Infrastructure.Custom.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -19,59 +20,66 @@ namespace CobroSmart.Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<bool> Delete(int Id)
+        public async Task<Result<bool>> Delete(int Id)
         {
-                var user = await _context.Users.FindAsync(Id) ?? throw new NotFoundException("User not was found");
+            var user = await _context.Users.FindAsync(Id);
+            if (user == null)
+                 return Result<bool>.Failure("User not found");
 
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
-                return true;
+                return Result<bool>.Success(true);
         }
 
-        public async Task<User> FindById(int Id)
+        public async Task<Result<User>> FindById(int Id)
         {
-            var user = await _context.Users.FindAsync(Id) ?? throw new NotFoundException("User not was found");
+            var user = await _context.Users.FindAsync(Id);
+            if (user == null)
+                return Result<User>.Failure("User not found");
 
-                return user;
+            return Result<User>.Success(user);
         }
 
-        public async Task<IQueryable<User>> GetAll()
+        public IQueryable<User> GetAll()
         {
-            IQueryable<User> users = _context.Users;
-            return users;
+           return _context.Users;
         }
 
-        public async Task<User> Save(User model)
+        public async Task<Result<User>> Save(User model)
         {
             if (model == null)
-                throw new NotFoundException(nameof(model));
+                return Result<User>.Failure("Model was found");
 
-                var user = await _context.Users.AddAsync(model);
-                await _context.SaveChangesAsync();
-                return model;
+            await _context.Users.AddAsync(model);
+            await _context.SaveChangesAsync();
+            return Result<User>.Success(model);
         }
 
-        public async Task<bool> SoftDelete(int Id)
+        public async Task<Result<bool>> SoftDelete(int Id)
         {
-                var user = await _context.Users.FindAsync(Id) ?? throw new NotFoundException("User not was found");
+            var user = await _context.Users.FindAsync(Id);
+            if (user == null)
+                return Result<bool>.Failure("User not found");
 
                 user.IsDeleted = true;
                 user.DeletedAt = DateTime.Now;
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();
-                return true;
+                return Result<bool>.Success(true);
         }
 
-        public async Task<bool> Update(User model)
+        public async Task<Result<bool>> Update(User model)
         {
             if (model == null)
-                throw new NotFoundException(nameof(model));
+                return Result<bool>.Failure("model is empty");
 
-            var existingUser = await _context.Users.FindAsync(model.Id) ?? throw new NotFoundException("User was not found");
+            var existingUser = await _context.Users.FindAsync(model.Id);
+            if (existingUser == null)
+                return Result<bool>.Failure("User was not found");
 
-            _context.Users.Update(model);
+                _context.Users.Update(model);
                 await _context.SaveChangesAsync();
-                return true;
+                return Result<bool>.Success(true);
         }
     }
 }

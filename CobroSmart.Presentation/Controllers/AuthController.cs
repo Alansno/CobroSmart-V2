@@ -1,4 +1,6 @@
-﻿using CobroSmart.Domain.Builder;
+﻿using CobroSmart.Application.IServices;
+using CobroSmart.Domain.Builder;
+using CobroSmart.Domain.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,17 +12,27 @@ namespace CobroSmart.Presentation.Controllers
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        [HttpGet]
-        [Route("/greeting")]
-        public IActionResult Greeting()
+        private readonly IAuthService _authService;
+        private readonly ResponseBuild _response;
+        public AuthController(IAuthService authService, ResponseBuild response)
         {
-            var response = new ResponseBuild()
-            .SetSuccess(true)
-            .SetMessage("Saludo desde controlador")
-            .SetStatus(System.Net.HttpStatusCode.Created)
-            .Build();
+            _authService = authService;
+            _response = response;
+        }
 
-            return Ok(response);
+        [HttpPost]
+        [Route("/login")]
+        public async Task<IActionResult> LogIn([FromBody] AuthDto authDto)
+        {
+            var auth = await _authService.Authenticate(authDto);
+            if (auth.IsSuccess)
+                return Ok(_response.SetSuccess(true)
+                       .SetStatus(System.Net.HttpStatusCode.OK)
+                       .SetMessage("User authenticated succesfully")
+                       .SetData(auth.Value)
+                       .Build());
+
+            return BadRequest(auth.Error);
         }
     }
 }

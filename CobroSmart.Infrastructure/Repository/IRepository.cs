@@ -1,4 +1,5 @@
 ﻿using CobroSmart.Domain.Models;
+using CobroSmart.Infrastructure.Custom.Results;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,11 @@ namespace CobroSmart.Infrastructure.Repository
 {
     public interface IRepository<M> where M : class
     {
-        Task<M> Save(M model);
-        Task<bool> Update(M model);
-        Task<bool> Delete(int Id);
-        Task<bool> SoftDelete(int Id);
-        Task<M> FindById(int Id);
-        Task<IQueryable<M>> GetAll();
+        Task<Result<M>> Save(M model);
+        Task<Result<bool>> Update(M model);
+        Task<Result<bool>> Delete(int Id);
+        Task<Result<bool>> SoftDelete(int Id);
+        Task<Result<M>> FindById(int Id);
+        IQueryable<M> GetAll();
     }
 }

@@ -1,5 +1,7 @@
 ﻿using CobroSmart.Domain.Dtos;
 using CobroSmart.Domain.Models;
+using CobroSmart.Domain.QueryBase;
+using CobroSmart.Infrastructure.Custom.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,6 @@ namespace CobroSmart.Application.IServices
     public interface IRoleService
     {
         Task<Role> Create(RoleDto roleDto);
-        Task<int> FindById(int id);
+        Task<Result<FindRoleWithIdAndName>> FindById(int id);
     }
 }
