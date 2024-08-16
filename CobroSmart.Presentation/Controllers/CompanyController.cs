@@ -21,7 +21,7 @@ namespace CobroSmart.Presentation.Controllers
         }
 
         [HttpPost]
-        [Route("/create-company")]
+        [Route("create-company")]
         public async Task<IActionResult> CreateCompanyUser([FromBody] UserDto userDto)
         {
             var save = await _companyService.Create(userDto);

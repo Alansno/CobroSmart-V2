@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace CobroSmart.Application.Services
 {
@@ -37,27 +38,26 @@ namespace CobroSmart.Application.Services
             _roleService = roleService;
             _userRepository = userRepository;
         }
-
         public async Task<Result<UserDto>> Create(UserDto userDto)
         {
-            var loadUsername = FindUsername(userDto.Username);
-            var loadEmail = FindEmail(userDto.EmailCompany);
+                var loadUsername = FindUsername(userDto.Username);
+                var loadEmail = FindEmail(userDto.EmailCompany);
 
-            await Task.WhenAll(loadUsername, loadEmail);
+                await Task.WhenAll(loadUsername, loadEmail);
 
-            var resultUsername = await loadUsername;
-            if (!resultUsername.IsSuccess) return Result<UserDto>.Failure(resultUsername.Error);
+                var resultUsername = await loadUsername;
+                var resultEmail = await loadEmail;
 
-            var resultEmail = await loadEmail;
-            if (!resultEmail.IsSuccess) return Result<UserDto>.Failure(resultEmail.Error);
+                if (!resultUsername.IsSuccess || !resultEmail.IsSuccess)
+                    return Result<UserDto>.Failure(resultUsername.Error ?? resultEmail.Error);
 
-            var toRole = await FindRoleById();
-            if (!toRole.IsSuccess) return Result<UserDto>.Failure(toRole.Error);
-
-            var toHash = HashPassword(userDto.Password);
-            if (!toHash.IsSuccess) return Result<UserDto>.Failure(toHash.Error);
-
-            return await Save(userDto, toRole.Value.Id, toHash.Value.Hash, toHash.Value.Salt);
+                return await FindRoleById().BindAsync(async role =>
+                {
+                    var hashResult = HashPassword(userDto.Password);
+                    return hashResult.IsSuccess
+                        ? await Save(userDto, role.Id, hashResult.Value.Hash, hashResult.Value.Salt)
+                        : Result<UserDto>.Failure(hashResult.Error);
+                });
         }
 
         public async Task<Result<bool>> FindUsername(string username)

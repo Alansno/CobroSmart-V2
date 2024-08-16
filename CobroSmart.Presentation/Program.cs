@@ -29,11 +29,13 @@ builder.Services.AddDbContextFactory<CobroSmartContext>((sp, options) =>
 builder.Services.AddScoped<UserMapper>();
 builder.Services.AddScoped<RoleMapper>();
 builder.Services.AddScoped<CompanyMapper>();
+builder.Services.AddScoped<EmployeeMapper>();
 
 //Repositories dependencies
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Role>, RoleRepository>();
 builder.Services.AddScoped<IRepository<Company>, CompanyRepository>();
+builder.Services.AddScoped<IRepository<Employees>, EmployeeRepository>();
 
 //Services and response
 builder.Services.AddScoped<ResponseBuild>();
@@ -42,6 +44,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 //Jwt configuration
 builder.Services.AddAuthentication(options =>
@@ -63,6 +66,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("NewPolicy", app =>
+    {
+        app.AllowAnyOrigin()
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<GlobalExceptionFilter>();
@@ -79,6 +92,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("NewPolicy");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

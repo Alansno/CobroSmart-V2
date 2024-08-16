@@ -9,6 +9,7 @@ using CobroSmart.Infrastructure.Custom.Results;
 using CobroSmart.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,16 +31,16 @@ namespace CobroSmart.Application.Services
         public async Task<Result<AuthResponse>> Authenticate(AuthDto authDto)
         {
             return await FindUserByUsername(authDto.Username)
-            .BindAsync(async user =>
-             {
-                var roleResult = LoadRole(user);
-                var credentialsResult = VerifyUserCredentials(user, authDto.Password);
-                var loadToRole = await roleResult;
+                .BindAsync(async username =>
+                {
+                    var loadingRole = LoadRole(username);
+                    var credentials = VerifyUserCredentials(username, authDto.Password);
+                    var resultRole = await loadingRole;
 
-                return credentialsResult.IsSuccess && loadToRole.IsSuccess
-                    ? GenerateAuthResponse(user, loadToRole.Value)
-                    : Result<AuthResponse>.Failure(credentialsResult.Error ?? loadToRole.Error);
-            });
+                    return credentials.IsSuccess && resultRole.IsSuccess ?
+                    GenerateAuthResponse(username, resultRole.Value)
+                    : Result<AuthResponse>.Failure(credentials.Error ?? resultRole.Error);
+                });
         }
 
         public async Task<Result<User>> FindUserByUsername(string username)
@@ -49,7 +50,7 @@ namespace CobroSmart.Application.Services
 
         public async Task<Result<FindRoleWithIdAndName>> LoadRole(User user)
         {
-            return await _roleService.FindById(user.Id);
+            return await _roleService.FindById(user.RoleId);
         }
 
         public Result<bool> VerifyUserCredentials(User user, string password)

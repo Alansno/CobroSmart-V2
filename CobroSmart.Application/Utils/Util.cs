@@ -1,4 +1,5 @@
 ﻿using CobroSmart.Domain.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -68,6 +69,21 @@ namespace CobroSmart.Application.Utils
 
             var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, hashAlgorithm, keySize);
             return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(hash));
+        }
+
+        public static int findUserId(HttpContext httpContext)
+        {
+            ClaimsPrincipal principal = httpContext.User;
+            var id = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (id != null)
+            {
+
+                int userId = int.Parse(id);
+                return userId;
+            }
+
+            return 0;
+
         }
     }
 }

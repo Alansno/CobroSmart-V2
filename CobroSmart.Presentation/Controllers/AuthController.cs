@@ -21,7 +21,7 @@ namespace CobroSmart.Presentation.Controllers
         }
 
         [HttpPost]
-        [Route("/login")]
+        [Route("login")]
         public async Task<IActionResult> LogIn([FromBody] AuthDto authDto)
         {
             var auth = await _authService.Authenticate(authDto);

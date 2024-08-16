@@ -23,9 +23,13 @@ namespace CobroSmart.Infrastructure.Repository
             throw new NotImplementedException();
         }
 
-        public Task<Result<Company>> FindById(int Id)
+        public async Task<Result<Company>> FindById(int Id)
         {
-            throw new NotImplementedException();
+            var company = await _context.Companies.FindAsync(Id);
+            if (company == null)
+                return Result<Company>.Failure("Company not found");
+
+            return Result<Company>.Success(company);
         }
 
         public IQueryable<Company> GetAll()
